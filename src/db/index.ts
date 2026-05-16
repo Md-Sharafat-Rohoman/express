@@ -7,13 +7,13 @@ export const pool = new Pool({
 
 export const initDB = async () => {
     try {
-        await pool.query(`DROP TABLE IF EXISTS users`);
+        // await pool.query(`DROP TABLE IF EXISTS users CASCADE`);
         await pool.query(`
           CREATE TABLE IF NOT EXISTS users(
           ID SERIAL PRIMARY KEY,
           NAME VARCHAR(50),
           EMAIL VARCHAR(100) UNIQUE NOT NULL,
-          PASSWORD VARCHAR(20) NOT NULL,
+          PASSWORD TEXT NOT NULL,
           is_active BOOLEAN DEFAULT true,
           age INT,
 
@@ -22,7 +22,20 @@ export const initDB = async () => {
 
         )
     `);
-        // console.log("Database connected successfully");
+        await pool.query(`
+        CREATE TABLE IF NOT EXISTS profiles(
+        id SERIAL PRIMARY KEY,
+        user_id INT UNIQUE REFERENCES users(id) ON DELETE CASCADE,
+        bio TEXT,
+        address TEXT,
+        phone VARCHAR(15),
+        gender VARCHAR(10),
+
+        create_at TIMESTAMP DEFAULT NOW(),
+        updated_at TIMESTAMP DEFAULT NOW()
+        )
+        `)
+        console.log("Database connected successfully");
 
     }
     catch (error) {
